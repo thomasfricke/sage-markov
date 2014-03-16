@@ -58,8 +58,13 @@ sage
 Sage Version 6.1.1, Release Date: 2014-02-04                       
 
 sage: %attach "markovian.spyx"
-   Compiling ./markovian.spyx...
-   100 cells empty initialized
+
+Compiling ./markovian.spyx...
+
+100 cells empty initialized
+
 sage: m.plot()
-<picture pops up>
+
+   <picture pops up>
+
 sage: 
