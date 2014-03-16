@@ -1,0 +1,121 @@
+###################################################################################
+#
+#   This file is part of Sage-Markov.
+#
+#   Sage-Markov is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    Sage-Markov is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU AFFERO GENERAL PUBLIC LICENSE for more details.
+#   You should have received a copy of the GNU AFFERO GENERAL PUBLIC LICENSE
+#   along with Sage-Markov.  If not, see <http://www.gnu.org/licenses/>.
+#
+###############################################################################
+
+
+#clang c
+#cargs -std=c99
+
+#cfile logclass.c rand55.c rand55static.c sagemarkov.c
+
+from   sage.plot.plot import list_plot
+
+ctypedef unsigned long size_t
+ctypedef double reactivity_t
+
+cdef extern from "sagemarkov.h":
+  cdef struct cell:
+    void * LC_DERIVED
+    unsigned long n
+    
+  cell * cells
+  
+  int number_of_cells
+  unsigned long seed
+
+  int create_walk(size_t init_number_of_cells, unsigned long init_seed, double timescale)
+  int destroy_walk()
+  
+  reactivity_t reactivity(size_t index)
+  void update_reactivity(size_t index)
+  void getcell(size_t index)
+  void run_walk(size_t iterations)
+  double markov_time
+
+class MarkovianRangeException(BaseException):
+  """Range check exception"""
+  def __init__(self, expr, msg):
+        self.expr = expr
+        self.msg = msg
+
+class Markovian:
+  
+  def __init__(self,number_of_cells, seed=0, timescale=1, initial=None):
+    self.create(number_of_cells, seed, timescale)
+    if initial:
+      self.initial_conditions(initial)
+    
+  def create(self,number_of_cells, seed=0, timescale=1):
+    if not number_of_cells >0:
+      raise MarkovianRangeException("number_of_cells=%d" % self.number_of_cells(),"the number of cells must be a positive number")
+   
+    if not number_of_cells >0:
+      raise MarkovianRangeException("timescale=%f" % timescale,
+        "the timescale must be a positive number")
+    
+    return create_walk(number_of_cells, seed, timescale)
+
+  def destroy(self):
+    return destroy_walk()
+
+  def update(self,index):
+    if index < 0 or index >= self.number_of_cells():
+      raise MarkovianRangeException("index=%d" % index,"the index must be in the range=0 .. %d" % self.number_of_cells())
+    update_reactivity(index)
+  
+  def reactivity(self,index):
+    return reactivity(index)
+  
+  def cell(self,index,n=None):
+
+    if index < 0 or index >= self.number_of_cells():
+      raise MarkovianRangeException("index=%d" % index,"the index must be in the range=0 .. %d" % self.number_of_cells())
+    
+    if n:
+      if n<0:
+        raise MarkovianRangeException("n=%d" % n,"the number of walkers n must be n >= 0")
+      cells[index].n=n
+      self.update(index)
+    return cells[index].n
+  
+  def number_of_cells(self):
+    return number_of_cells
+  
+  def run(self,iterations):
+    run_walk(iterations)
+    return markov_time
+  
+  def initial_conditions(self,initial):
+    for k in initial:
+      self.cell(k,initial[k]+self.cell(k))
+  
+  def all_cells(self, cond=lambda index: True):
+    ne={}
+    for i in range(self.number_of_cells() ):
+      if cond(i) > 0:
+        ne[i]=self.cell(i)
+    return ne
+    
+  def non_empty_cells(self):
+    return self.all_cells(cond = lambda i: self.cell(i) > 0)
+
+  def plot(self):
+    return list_plot(self.non_empty_cells())
+
+m=Markovian(100,initial={50: 10000})
+m.run(10000)
+m.plot()

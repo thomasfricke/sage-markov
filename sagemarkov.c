@@ -1,0 +1,71 @@
+/*******************************************************************************
+*    This file is part of Sage-Markov.
+*
+*    Sage-Markov is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    Sage-Markov is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU AFFERO GENERAL PUBLIC LICENSE for more details.
+
+*    You should have received a copy of the GNU AFFERO GENERAL PUBLIC LICENSE
+*    along with Sage-Markov.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include <sagemarkov.h>
+
+
+lc_global lc_g;
+cell * cells;
+size_t number_of_cells;
+double markov_time = 0;
+
+unsigned long seed;
+
+int create_walk(size_t init_number_of_cells, unsigned long init_seed, double timescale){
+  
+  markov_time = 0;
+  
+  if(cells){
+    printf("cells already initialized\n");
+    return 1;
+  }
+
+  number_of_cells=init_number_of_cells;
+
+  cells=(cell*) calloc(sizeof(cell), number_of_cells);
+  seed=init_rand55(init_seed);
+  lc_init(&lc_g,number_of_cells,NULL,timescale);
+
+  for( size_t i=0; i<number_of_cells; i++){
+    cells[i].n=0;
+    cells[i].lc_ev=NULL;
+  }
+ 
+  printf("%d cells empty initialized\n",number_of_cells);
+  return 0;
+}
+
+int destroy_walk(){
+  if(cells){
+    lc_clear(&lc_g);
+    free(cells);
+    cells=NULL;
+    number_of_cells=0;
+    return 0;
+  }
+  return 1;
+}
+
+void run_walk(size_t nrun){
+  if( lc_g.r == 0.0 ){
+     printf("model not initialized, reactivity is 0 \n");
+     return -1;
+  }
+  for(size_t i=0; nrun==0 || i<nrun; i++){
+    markov_time+=markov_step();
+  }
+}
