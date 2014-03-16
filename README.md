@@ -21,7 +21,9 @@ Inside a cell standard Gillespie can be used.
 First selecting the classe, then the cell inside the class t
 
 [1]  http://en.wikipedia.org/wiki/Gillespie_algorithm
+
 [2]  http://link.springer.com/article/10.1007/BF01309430#page-1
+
 [3]  http://www.worldscientific.com/doi/abs/10.1142/S0129183195000216
 
 I have split the simulation into the random generator, the standard algorithm
@@ -53,11 +55,8 @@ model specific, a simple 1-dimensional random walk without reactions:
 call sage in the directory sage-markov of the checkout
 
 sage
-┌────────────────────────────────────────────────────────────────────┐
-│ Sage Version 6.1.1, Release Date: 2014-02-04                       │
-│ Type "notebook()" for the browser-based notebook interface.        │
-│ Type "help()" for help.                                            │
-└────────────────────────────────────────────────────────────────────┘
+Sage Version 6.1.1, Release Date: 2014-02-04                       
+
 sage: %attach "markovian.spyx"
    Compiling ./markovian.spyx...
    100 cells empty initialized
