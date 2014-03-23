@@ -16,13 +16,16 @@
 #
 ###############################################################################
 
+import os
+home=os.getcwd()
 
 #clang c
 #cargs -std=c99
-
+#cinclude home
 #cfile logclass.c rand55.c rand55static.c sagemarkov.c
 
 from   sage.plot.plot import list_plot
+from math import *
 
 ctypedef unsigned long size_t
 ctypedef double reactivity_t
@@ -99,7 +102,11 @@ class Markovian:
     run_walk(iterations)
     return markov_time
   
+  def time(self):
+    return markov_time
+  
   def initial_conditions(self,initial):
+    self.initial=initial
     for k in initial:
       self.cell(k,initial[k]+self.cell(k))
   
@@ -113,9 +120,19 @@ class Markovian:
   def non_empty_cells(self):
     return self.all_cells(cond = lambda i: self.cell(i) > 0)
 
+  def analytic(self):
+    return lambda x: self.initial[number_of_cells/2]*exp( -pow(x-number_of_cells/2,2)/( 2*self.time() ) ) /sqrt( 2*pi*self.time() )
+    
   def plot(self):
     return list_plot(self.non_empty_cells())
 
-m=Markovian(100,initial={50: 10000})
-m.run(10000)
+  def analytic_plot(self,color='red',plotjoined=True):
+    a=self.non_empty_cells()
+    for i in a:
+      a[i]=self.analytic()(i)
+    
+    return list_plot(a,color=color,plotjoined=plotjoined)
+    
+m=Markovian(100,initial={50: 100000})
+m.run(1000000)
 m.plot()

@@ -29,42 +29,44 @@ First selecting the classe, then the cell inside the class t
 I have split the simulation into the random generator, the standard algorithm
 and domain specific code.
 
-pseudo random generator:
-     createtable.c 
-     gauss55.h
-     rand55.h 
-     random55.h 
-     rand55.c
-     rand55static.c
+- pseudo random generator:
+  -    createtable.c 
+  -    gauss55.h
+  -    rand55.h 
+  -    random55.h 
+  -    rand55.c
+  -    rand55static.c
 
-common algorithm:
-     logclass.c 
-     logclass.h
-     logclassevent.h
-     logclasstest.c  
+- the common algorithm:
+  -    logclass.c 
+  -    logclass.h
+  -    logclassevent.h
+  -    logclasstest.c  
 
-glue code to Sage:
-    sagemarkov.h
-    sagemarkov.c
-    markovian.spyx     
+- glue code to Sage:
+  -   sagemarkov.h
+  -   sagemarkov.c
+  -   markovian.spyx     
 
-model specific, a simple 1-dimensional random walk without reactions:
-    model.h
-    randomwalk.h
+- model specific, a simple 1-dimensional random walk without reactions:
+  -   model.h
+  -   randomwalk.h
 
-call sage in the directory sage-markov of the checkout
+call sage from anywhere, the following example also works from the 
+notebook() in a browser
 
-sage
-Sage Version 6.1.1, Release Date: 2014-02-04                       
+%sage
+Sage Version 6.1.1, Release Date: 2014-02-04
+
+sage: os.curdir='/path/to/your/sage-markov' 
+sage: load_attach_path(os.curdir) 
 
 sage: %attach "markovian.spyx"
-
+# no % sign in the notebook()
 Compiling ./markovian.spyx...
-
 100 cells empty initialized
 
-sage: m.plot()
+sage:m.plot()+m.analytic_plot()
 
    <picture pops up>
 
-sage: 
