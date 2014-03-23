@@ -41,18 +41,20 @@ the sage glue code and the domain specific code.
 -    rand55.c
 -    rand55static.c
 
-### the common algorithm:
+### Common Algorithm
 -    logclass.c 
 -    logclass.h
 -    logclassevent.h
 -    logclasstest.c  
 
-### glue code to Sage:
+This was the algorithm I developed for my diploma thesis in 1988-1989
+
+### Glue Code to Sage
 -   sagemarkov.h
 -   sagemarkov.c
 -   markovian.spyx     
 
-### model specific
+### Model Specific
 The first example is a simple 1-dimensional random walk without reactions
 -   model.h
 -   randomwalk.h
