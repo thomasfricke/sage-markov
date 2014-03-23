@@ -30,11 +30,13 @@ this class of problems.
 3.  http://www.worldscientific.com/doi/abs/10.1142/S0129183195000216
 
 # Code
+
 I have split the simulation into the random generator, the standard algorithm, 
 the sage glue code and the domain specific code.
 
 ### pseudo random generator:
--    createtable.c 
+
+-    createtable.c
 -    gauss55.h
 -    rand55.h 
 -    random55.h 
@@ -42,19 +44,22 @@ the sage glue code and the domain specific code.
 -    rand55static.c
 
 ### Common Algorithm
+
 -    logclass.c 
 -    logclass.h
 -    logclassevent.h
--    logclasstest.c  
+-    logclasstest.c
 
 This was the algorithm I developed for my diploma thesis in 1988-1989
 
 ### Glue Code to Sage
+
 -   sagemarkov.h
 -   sagemarkov.c
--   markovian.spyx     
+-   markovian.spyx
 
 ### Model Specific
+
 The first example is a simple 1-dimensional random walk without reactions
 -   model.h
 -   randomwalk.h
@@ -79,5 +84,5 @@ Compiling ./markovian.spyx...
 
 sage:m.plot()+m.analytic_plot()
 ```
-   <picture pops up>
+![Simulation and Analytic](sage0.png)
 
