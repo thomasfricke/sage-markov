@@ -52,7 +52,8 @@ the sage glue code and the domain specific code.
 -   sagemarkov.c
 -   markovian.spyx     
 
-### model specific, a simple 1-dimensional random walk without reactions:
+### model specific
+The first example is a simple 1-dimensional random walk without reactions
 -   model.h
 -   randomwalk.h
 
