@@ -26,4 +26,7 @@ inline void update_reactivity(size_t index){
  ( cells+index) -> lc_ev = lc_enter( &lc_g, cells+index, reactivity( index ) );
 }
 
+inline lc_reactivity_t global_reactivity(){
+   return lc_g.r;
+}
 #endif

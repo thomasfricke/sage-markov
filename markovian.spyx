@@ -44,9 +44,13 @@ cdef extern from "sagemarkov.h":
   int destroy_walk()
   
   reactivity_t reactivity(size_t index)
+  reactivity_t global_reactivity()
+  
   void update_reactivity(size_t index)
   void getcell(size_t index)
   void run_walk(size_t iterations)
+  
+  
   double markov_time
   double decay_rate
   double diffusion_rate
@@ -82,9 +86,12 @@ class Markovian:
       raise MarkovianRangeException("index=%d" % index,"the index must be in the range=0 .. %d" % self.number_of_cells())
     update_reactivity(index)
   
-  def reactivity(self,index):
-    return reactivity(index)
-  
+  def reactivity(self,index=None):
+    if index:
+      return reactivity(index)
+    else: 
+      return global_reactivity()
+      
   def diffusion_rate(self, d=None):
     if d:
       diffusion_rate=d
@@ -149,5 +156,6 @@ class Markovian:
     return list_plot(a,color=color,plotjoined=plotjoined)
     
 m=Markovian(100,initial={50: 100000})
+m.decay_rate(0.1)
 m.run(1000000)
 m.plot()
