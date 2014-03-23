@@ -41,7 +41,6 @@ int create_walk(size_t init_number_of_cells, unsigned long init_seed, double tim
   lc_init(&lc_g,number_of_cells,NULL,timescale);
 
   for( size_t i=0; i<number_of_cells; i++){
-    cells[i].n=0;
     cells[i].lc_ev=NULL;
   }
  
@@ -65,7 +64,7 @@ void run_walk(size_t nrun){
      printf("model not initialized, reactivity is 0 \n");
      return -1;
   }
-  for(size_t i=0; nrun==0 || i<nrun; i++){
+  for(size_t i=0;  ( nrun==0 || i<nrun ) && lc_g.r > lc_g.eps ; i++){
     markov_time+=markov_step();
   }
 }

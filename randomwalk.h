@@ -34,31 +34,42 @@ extern cell * cells;
 extern size_t number_of_cells;
 extern lc_global lc_g;
 
+extern lc_reactivity_t decay_rate, diffusion_rate;
+
 inline lc_reactivity_t reactivity(size_t index) {
-  return ( cells+index ) -> n;
+  return (decay_rate+diffusion_rate)* ( cells+index ) -> n;
 }
 
 inline double markov_step(){
     LC_DRAW(cell,source);
     double time_step=LC_TIME_STEP();
-    source->n--;
-    cell *dest;
-    /* draw dest cell, right or left neighbour */
-    if(rand55() & 1){ /* bad example */
-      dest=source+1;
-      if(dest==cells+number_of_cells) /* cyclic boundaries: right out, left in */
-        dest=cells;
-    }
-    else{
-      dest=source-1;
-      if(dest<cells) /* cyclic boundaries: left out, right in */
-        dest+=number_of_cells;
-    }
+   
+    if( drand55()* ( decay_rate + diffusion_rate ) < decay_rate ){
+       // reaction step
+      source -> n--;
+      LC_UPDATE_DRAWN(source);
+      return time_step;
+    } else {
+      // diffusion step
+      source->n--;
+      cell *dest;
+      /* draw dest cell, right or left neighbour */
+      if(rand55() & 1){ /* bad example */
+        dest=source+1;
+        if(dest==cells+number_of_cells) /* cyclic boundaries: right out, left in */
+          dest=cells;
+      }
+      else{
+        dest=source-1;
+        if(dest<cells) /* cyclic boundaries: left out, right in */
+          dest+=number_of_cells;
+      }
 
-    dest->n++;
-    LC_UPDATE_DRAWN(source);
+      dest->n++;
+      LC_UPDATE_DRAWN(source);
 
-    LC_UPDATE(dest);
-    return time_step;
+      LC_UPDATE(dest);
+      return time_step;
+    }
 }
 #endif

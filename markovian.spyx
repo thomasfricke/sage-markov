@@ -22,7 +22,7 @@ home=os.getcwd()
 #clang c
 #cargs -std=c99
 #cinclude home
-#cfile logclass.c rand55.c rand55static.c sagemarkov.c
+#cfile randomwalk.c logclass.c rand55.c rand55static.c sagemarkov.c
 
 from   sage.plot.plot import list_plot
 from math import *
@@ -48,6 +48,8 @@ cdef extern from "sagemarkov.h":
   void getcell(size_t index)
   void run_walk(size_t iterations)
   double markov_time
+  double decay_rate
+  double diffusion_rate
 
 class MarkovianRangeException(BaseException):
   """Range check exception"""
@@ -83,6 +85,12 @@ class Markovian:
   def reactivity(self,index):
     return reactivity(index)
   
+  def diffusion_rate(self, d=None):
+    if d:
+      diffusion_rate=d
+    
+    return diffusion_rate
+  
   def cell(self,index,n=None):
 
     if index < 0 or index >= self.number_of_cells():
@@ -104,6 +112,13 @@ class Markovian:
   
   def time(self):
     return markov_time
+  
+  def decay_rate(self,r=None):
+    global decay_rate
+    if r:
+      decay_rate=r
+      
+    return decay_rate
   
   def initial_conditions(self,initial):
     self.initial=initial
