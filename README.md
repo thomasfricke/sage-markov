@@ -30,10 +30,10 @@ this class of problems.
 3.  http://www.worldscientific.com/doi/abs/10.1142/S0129183195000216
 
 # Code
-I have split the simulation into the random generator, the standard algorithm
-and domain specific code.
+I have split the simulation into the random generator, the standard algorithm, 
+the sage glue code and the domain specific code.
 
-## pseudo random generator:
+### pseudo random generator:
 -    createtable.c 
 -    gauss55.h
 -    rand55.h 
@@ -41,26 +41,28 @@ and domain specific code.
 -    rand55.c
 -    rand55static.c
 
-## the common algorithm:
+### the common algorithm:
 -    logclass.c 
 -    logclass.h
 -    logclassevent.h
 -    logclasstest.c  
 
-## glue code to Sage:
+### glue code to Sage:
 -   sagemarkov.h
 -   sagemarkov.c
 -   markovian.spyx     
 
-## model specific, a simple 1-dimensional random walk without reactions:
+### model specific, a simple 1-dimensional random walk without reactions:
 -   model.h
 -   randomwalk.h
 
-## Usage
+### Usage
 
 call sage from anywhere, the following example also works from the 
 notebook() in a browser
 
+
+```python
 %sage
 Sage Version 6.1.1, Release Date: 2014-02-04
 
@@ -73,6 +75,6 @@ Compiling ./markovian.spyx...
 100 cells empty initialized
 
 sage:m.plot()+m.analytic_plot()
-
+```
    <picture pops up>
 
