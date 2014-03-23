@@ -73,7 +73,7 @@ sage: os.curdir='/path/to/your/sage-markov'
 sage: load_attach_path(os.curdir) 
 
 sage: %attach "markovian.spyx"
-\# no % sign in the notebook()
+# no '%' sign in the notebook()
 Compiling ./markovian.spyx...
 100 cells empty initialized
 
