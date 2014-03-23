@@ -1,3 +1,4 @@
+# Markov 
 Markov is an optimized simulation tool written in C for arbitrary 
 Reaction-Diffusion-Systems (RDS).
 
@@ -18,39 +19,44 @@ algorithm is used to select a cell with an 75% efficiency.
 
 Inside a cell standard Gillespie can be used.
 
-First selecting the classe, then the cell inside the class t
+First selecting the class, then the cell inside the class the 
+algorithm has been proven to be the fastest method possible for
+this class of problems.
 
-[1]  http://en.wikipedia.org/wiki/Gillespie_algorithm
+1.  http://en.wikipedia.org/wiki/Gillespie_algorithm
 
-[2]  http://link.springer.com/article/10.1007/BF01309430#page-1
+2.  http://link.springer.com/article/10.1007/BF01309430#page-1
 
-[3]  http://www.worldscientific.com/doi/abs/10.1142/S0129183195000216
+3.  http://www.worldscientific.com/doi/abs/10.1142/S0129183195000216
 
+# Code
 I have split the simulation into the random generator, the standard algorithm
 and domain specific code.
 
-- pseudo random generator:
-  -    createtable.c 
-  -    gauss55.h
-  -    rand55.h 
-  -    random55.h 
-  -    rand55.c
-  -    rand55static.c
+## pseudo random generator:
+-    createtable.c 
+-    gauss55.h
+-    rand55.h 
+-    random55.h 
+-    rand55.c
+-    rand55static.c
 
-- the common algorithm:
-  -    logclass.c 
-  -    logclass.h
-  -    logclassevent.h
-  -    logclasstest.c  
+## the common algorithm:
+-    logclass.c 
+-    logclass.h
+-    logclassevent.h
+-    logclasstest.c  
 
-- glue code to Sage:
-  -   sagemarkov.h
-  -   sagemarkov.c
-  -   markovian.spyx     
+## glue code to Sage:
+-   sagemarkov.h
+-   sagemarkov.c
+-   markovian.spyx     
 
-- model specific, a simple 1-dimensional random walk without reactions:
-  -   model.h
-  -   randomwalk.h
+## model specific, a simple 1-dimensional random walk without reactions:
+-   model.h
+-   randomwalk.h
+
+## Usage
 
 call sage from anywhere, the following example also works from the 
 notebook() in a browser
@@ -62,7 +68,7 @@ sage: os.curdir='/path/to/your/sage-markov'
 sage: load_attach_path(os.curdir) 
 
 sage: %attach "markovian.spyx"
-# no % sign in the notebook()
+\# no % sign in the notebook()
 Compiling ./markovian.spyx...
 100 cells empty initialized
 
