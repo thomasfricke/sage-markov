@@ -29,6 +29,12 @@ this class of problems.
 
 3.  http://www.worldscientific.com/doi/abs/10.1142/S0129183195000216
 
+### Requirements
+
+You need a full download of Sage http://sagemath.org/ to run this example.
+You also need some development tools be active, like gcc. I have run this 
+on Ubuntu 12.04.4, and it should run out of the box.
+
 # Code
 
 I have split the simulation into the random generator, the standard algorithm, 
