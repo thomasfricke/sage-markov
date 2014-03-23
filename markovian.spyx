@@ -154,8 +154,15 @@ class Markovian:
       a[i]=self.analytic()(i)
     
     return list_plot(a,color=color,plotjoined=plotjoined)
+  
+  def reactivity_by_time(self,steps=1000):
+    time_series={}
+    time_series[self.time()]=self.reactivity()
+    while self.reactivity() > 0:
+      self.run(steps)
+      if self.reactivity()>0:
+        time_series[self.time()]=self.reactivity()
+    return time_series
     
 m=Markovian(100,initial={50: 100000})
 m.decay_rate(0.1)
-m.run(1000000)
-m.plot()
