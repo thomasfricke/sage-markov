@@ -143,7 +143,7 @@ class Markovian:
     return self.all_cells(cond = lambda i: self.cell(i) > 0)
 
   def analytic(self):
-    return lambda x: self.initial[number_of_cells/2]*exp( -pow(x-number_of_cells/2,2)/( 2*self.time() ) ) /sqrt( 2*pi*self.time() )
+    return lambda x: self.initial[number_of_cells/2]*exp( -pow(x-number_of_cells/2,2)/( 2*self.time() ) -self.decay_rate()*self.time() ) /sqrt( 2*pi*self.time() )
     
   def plot(self):
     return list_plot(self.non_empty_cells())
@@ -154,15 +154,26 @@ class Markovian:
       a[i]=self.analytic()(i)
     
     return list_plot(a,color=color,plotjoined=plotjoined)
+    
+  def sum_walker(self):
+    sum=0
+    for c in self.all_cells():
+      sum = sum + cells[c].n
+      
+    return sum
   
-  def reactivity_by_time(self,steps=1000):
+  def value_by_time(self,fun,steps=1000):
     time_series={}
    
     while self.reactivity() > 0:
-      time_series[self.time()]=self.reactivity()
+      time_series[self.time()]=fun()
       self.run(steps)
       
     return time_series
-    
-m=Markovian(100,initial={50: 100000})
-m.decay_rate(0.1)
+  
+  @classmethod
+  def demo(cls,number_of_cells=100, initial={50: 100000},decay_rate=0.1):
+
+    m=Markovian(number_of_cells,initial=initial)
+    m.decay_rate(decay_rate)
+    return m

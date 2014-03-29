@@ -86,9 +86,28 @@ sage: load_attach_path(os.curdir)
 sage: %attach "markovian.spyx"
 # no '%' sign in the notebook()
 Compiling ./markovian.spyx...
-100 cells empty initialized
 
+# start a demo
+sage: m=Markovian.demo()
+100 cells empty initialized
+# run a million steps
+sage: m.run(1000000)
+24.201266334790212
+# plot the distribution
 sage:m.plot()+m.analytic_plot()
 ```
+
+another demo, the time series shows a semi log plot of
+the reactivity, which is in this simple example the same
+as the number of random walkers
+```python
+sage: m.destroy()
+0
+sage: m=Markovian.demo()
+100 cells empty initialized
+sage: list_plot_semilogy(m.value_by_time(fun=m.reactivity))
+```
+
+
 ![Simulation and Analytic](sage0.png)
 
