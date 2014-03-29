@@ -96,6 +96,7 @@ sage: m.run(1000000)
 # plot the distribution
 sage:m.plot()+m.analytic_plot()
 ```
+![Simulation and Analytic](sage0.png)
 
 another demo, the time series shows a semi log plot of
 the reactivity, which is in this simple example the same
@@ -109,5 +110,5 @@ sage: list_plot_semilogy(m.value_by_time(fun=m.reactivity))
 ```
 
 
-![Simulation and Analytic](sage0.png)
+
 

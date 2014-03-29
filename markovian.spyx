@@ -48,10 +48,10 @@ cdef extern from "sagemarkov.h":
   
   void update_reactivity(size_t index)
   void getcell(size_t index)
-  void run_walk(size_t iterations)
+  int run_walk(size_t iterations)
   
   
-  double markov_time
+  double markov_time, timescale
   double decay_rate
   double diffusion_rate
 
@@ -72,7 +72,7 @@ class Markovian:
     if not number_of_cells >0:
       raise MarkovianRangeException("number_of_cells=%d" % self.number_of_cells(),"the number of cells must be a positive number")
    
-    if not number_of_cells >0:
+    if not timescale >0:
       raise MarkovianRangeException("timescale=%f" % timescale,
         "the timescale must be a positive number")
     
@@ -114,7 +114,14 @@ class Markovian:
     return number_of_cells
   
   def run(self,iterations):
-    run_walk(iterations)
+    if run_walk(iterations) == -1 and self.number_of_cells() > 0 :
+      number_of_cells= self.number_of_cells()
+      self.destroy()
+      self.create(number_of_cells,seed,timescale)
+      if self.initial:
+        self.initial_conditions(self.initial)
+      run_walk(iterations)
+      
     return markov_time
   
   def time(self):

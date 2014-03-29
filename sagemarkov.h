@@ -20,7 +20,8 @@
 
 #include <logclass.h>
 #include <model.h>
-extern double markov_time;
+extern double markov_time, timescale;
+unsigned long seed;
 
 inline void update_reactivity(size_t index){
  ( cells+index) -> lc_ev = lc_enter( &lc_g, cells+index, reactivity( index ) );

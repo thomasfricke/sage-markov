@@ -21,16 +21,16 @@
 lc_global lc_g;
 cell * cells;
 size_t number_of_cells;
-double markov_time = 0;
+double markov_time, timescale;
 
 unsigned long seed;
 
-int create_walk(size_t init_number_of_cells, unsigned long init_seed, double timescale){
+int create_walk(size_t init_number_of_cells, unsigned long init_seed, double init_timescale){
   
   markov_time = 0;
+  timescale = init_timescale;
   
   if(cells){
-    printf("cells already initialized\n");
     return 1;
   }
 
@@ -44,7 +44,6 @@ int create_walk(size_t init_number_of_cells, unsigned long init_seed, double tim
     cells[i].lc_ev=NULL;
   }
  
-  printf("%d cells empty initialized\n",number_of_cells);
   return 0;
 }
 
@@ -59,12 +58,13 @@ int destroy_walk(){
   return 1;
 }
 
-void run_walk(size_t nrun){
-  if( lc_g.r == 0.0 ){
+int run_walk(size_t nrun){
+  if( lc_g.r < lc_g.eps ){
      printf("model not initialized, reactivity is 0 \n");
      return -1;
   }
   for(size_t i=0;  ( nrun==0 || i<nrun ) && lc_g.r > lc_g.eps ; i++){
     markov_time+=markov_step();
   }
+  return 0;
 }
