@@ -58,8 +58,7 @@ cdef extern from "sagemarkov.h":
 class MarkovianRangeException(BaseException):
   """Range check exception"""
   def __init__(self, expr, msg):
-        self.expr = expr
-        self.msg = msg
+        self.args = (expr, msg) 
 
 class Markovian:
   
@@ -113,15 +112,18 @@ class Markovian:
   def number_of_cells(self):
     return number_of_cells
   
+  def reinit(self):
+    number_of_cells= self.number_of_cells()
+    self.destroy()
+    self.create(number_of_cells,seed,timescale)
+    if self.initial:
+      self.initial_conditions(self.initial)
+        
   def run(self,iterations):
     if run_walk(iterations) == -1 and self.number_of_cells() > 0 :
-      number_of_cells= self.number_of_cells()
-      self.destroy()
-      self.create(number_of_cells,seed,timescale)
-      if self.initial:
-        self.initial_conditions(self.initial)
+      reinit()
       run_walk(iterations)
-      
+
     return markov_time
   
   def time(self):

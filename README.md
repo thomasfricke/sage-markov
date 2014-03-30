@@ -109,6 +109,10 @@ sage: m=Markovian.demo()
 sage: list_plot_semilogy(m.value_by_time(fun=m.reactivity))
 ```
 
-
+With 
+```
+sage: m.reinit()
+```
+you can easily reinit your system to the initial state.
 
 
