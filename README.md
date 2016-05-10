@@ -23,11 +23,15 @@ First selecting the class, then the cell inside the class the
 algorithm has been proven to be the fastest method possible for
 this class of problems.
 
-1.  http://en.wikipedia.org/wiki/Gillespie_algorithm
+1.  The math starts with the Master equation: https://en.wikipedia.org/wiki/Master_equation
 
-2.  http://link.springer.com/article/10.1007/BF01309430#page-1
+2.  http://en.wikipedia.org/wiki/Gillespie_algorithm
 
-3.  http://www.worldscientific.com/doi/abs/10.1142/S0129183195000216
+3.  http://link.springer.com/article/10.1007/BF01309430#page-1
+
+4.  http://www.worldscientific.com/doi/abs/10.1142/S0129183195000216
+
+
 
 ### Requirements
 
