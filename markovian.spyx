@@ -152,8 +152,10 @@ class Markovian:
     return self.all_cells(cond = lambda i: self.cell(i) > 0)
 
   def analytic(self):
-    return lambda x: self.initial[number_of_cells/2]*exp( -pow(x-number_of_cells/2,2)/( 2*self.time() ) -self.decay_rate()*self.time() ) /sqrt( 2*pi*self.time() )
-    
+    return lambda x: self.initial[number_of_cells/2] \
+                     *exp( -pow(x-number_of_cells/2,2)/( 2*self.time() ) - self.decay_rate()*self.time() ) \
+                     /sqrt( 2*pi*self.time() )
+
   def plot(self):
     return list_plot(self.non_empty_cells())
 
@@ -179,10 +181,26 @@ class Markovian:
       self.run(steps)
       
     return time_series
+
+  def write_to_file(self,filename="out.dat"):
+    f=open(filename,"w")
+    for c in self.all_cells():
+        sim = self.cell(c)
+        an  = self.analytic()(c)
+        err = sqrt(self.cell(c))
+        f.write('{0:d}\t{1:d}\t{2:f}\t{3:f}\n'.format(c, sim, an, err))
+    f.close()
+
   
   @classmethod
   def demo(cls,number_of_cells=100, initial={50: 100000},decay_rate=0.1):
 
     m=Markovian(number_of_cells,initial=initial)
     m.decay_rate(decay_rate)
+    m.run(1000000)
+    m.write_to_file()
     return m
+
+  @classmethod
+  def gnuplot_string(cls):
+    return  'reset\np "out.dat" u 1:2:4 t "simulation" with err, "out.dat" u 1:3 t "analytic" with linespoints smooth unique'

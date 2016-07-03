@@ -17,5 +17,13 @@
 #ifndef __MODEL_H__
 #define __MODEL_H__
 #define LC_REACTIVITY(c) (reactivity((c)-cells)) 
-#include <randomwalk.h>
+/*
+ *  definition of the model 
+ * 
+ */
+typedef struct CELL{
+  LC_DERIVED;
+  unsigned long n;
+} cell;
+
 #endif

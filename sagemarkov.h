@@ -20,7 +20,9 @@
 
 #include <logclass.h>
 #include <model.h>
+#include <randomwalk.h>
 extern double markov_time, timescale;
+
 unsigned long seed;
 
 inline void update_reactivity(size_t index){
