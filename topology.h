@@ -1,7 +1,6 @@
 #ifndef __TOPOLOGY_H__
 #define __TOPOLOGY_H__
 
-#include <model.h>
 extern size_t number_of_cells;
 extern cell * cells;
 

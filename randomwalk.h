@@ -20,36 +20,32 @@
 
 #include <logclass.h>
 #include <model.h>
-#include <topology.h>
-
 
 extern cell * cells;
 extern lc_global lc_g;
 
-extern lc_reactivity_t decay_rate, diffusion_rate;
-
-inline lc_reactivity_t reactivity(size_t index) {
-  return (decay_rate+diffusion_rate)* ( cells+index ) -> n;
-}
-
 inline double markov_step(){
     LC_DRAW(cell,source);
     double time_step=LC_TIME_STEP();
-   
-    if( drand55()* ( decay_rate + diffusion_rate ) < decay_rate ){
+
+    lc_reactivity_t reaction  = reaction_reactivity(source);
+    lc_reactivity_t diffusion = diffusion_reactivity(source);
+
+    if( drand55()* ( reaction + diffusion ) < reaction ){
        // reaction step
-      source -> n--;
+      reaction_step(source);
+
       LC_UPDATE_DRAWN(source);
-      return time_step;
+
     } else {
       // diffusion step
-      source->n--;
-      cell *dest = random_neighbour(source);
-      dest->n++;
+      cell * dest = diffusion_step(source);
+
       LC_UPDATE_DRAWN(source);
 
       LC_UPDATE(dest);
-      return time_step;
+
     }
+    return time_step;
 }
 #endif

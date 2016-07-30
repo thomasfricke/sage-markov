@@ -16,7 +16,10 @@
 */
 #ifndef __MODEL_H__
 #define __MODEL_H__
-#define LC_REACTIVITY(c) (reactivity((c)-cells)) 
+#include <logclass.h>
+
+#define LC_REACTIVITY(c) (reactivity((c)-cells))
+
 /*
  *  definition of the model 
  * 
@@ -26,4 +29,35 @@ typedef struct CELL{
   unsigned long n;
 } cell;
 
+#import <topology.h>
+
+extern lc_reactivity_t decay_rate, diffusion_rate;
+
+inline  lc_reactivity_t reaction_reactivity(const cell* source){
+    return decay_rate * source-> n ;
+}
+
+inline lc_reactivity_t diffusion_reactivity(const cell* source){
+    return diffusion_rate * source->n;
+}
+
+
+
+inline lc_reactivity_t reactivity(size_t index) {
+  return (decay_rate+diffusion_rate)* ( cells+index ) -> n;
+}
+
+
+inline void reaction_step(cell * source){
+    source -> n--;
+}
+
+inline cell * diffusion_step(cell * source){
+    source->n--;
+
+    cell *dest = random_neighbour(source);
+    dest->n++;
+
+    return dest;
+   }
 #endif
