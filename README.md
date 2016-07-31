@@ -68,6 +68,15 @@ This was the algorithm I developed for my diploma thesis in 1988-1989
 -   sagemarkov.c
 -   markovian.spyx
 
+### topology is a hypercube
+
+everything is defined in
+
+-   topology.h
+-   topology.c
+
+
+
 ### Model Specific
 
 The first example is a simple 1-dimensional random walk without reactions

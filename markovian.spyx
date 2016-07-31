@@ -18,13 +18,14 @@
 
 import os
 home=os.getcwd()
+dimension=1
 
 #clang c
 #cargs -std=c99
 #cinclude home
-#cfile model.c logclass.c rand55.c rand55static.c sagemarkov.c
+#cfile topology.c  model.c logclass.c rand55.c rand55static.c sagemarkov.c
 
-from   sage.plot.plot import list_plot
+from sage.plot.plot import list_plot
 from math import *
 
 ctypedef unsigned long size_t
@@ -37,8 +38,10 @@ cdef extern from "sagemarkov.h":
     
   cell * cells
   
-  int number_of_cells
+  size_t number_of_cells
   unsigned long seed
+
+  size_t create_topology(const int dimension, const size_t edge)
 
   int create_walk(size_t init_number_of_cells, unsigned long init_seed, double timescale)
   int destroy_walk()
@@ -62,19 +65,20 @@ class MarkovianRangeException(BaseException):
 
 class Markovian:
   
-  def __init__(self,number_of_cells, seed=0, timescale=1, initial=None):
-    self.create(number_of_cells, seed, timescale)
+  def __init__(self,dimension,size, seed=0, timescale=1, initial=None):
+    self.create(dimension, size, seed, timescale)
     if initial:
       self.initial_conditions(initial)
     
-  def create(self,number_of_cells, seed=0, timescale=1):
-    if not number_of_cells >0:
-      raise MarkovianRangeException("number_of_cells=%d" % self.number_of_cells(),"the number of cells must be a positive number")
+  def create(self,dimension, size, seed=0, timescale=1):
+    if not size >0:
+      raise MarkovianRangeException("size=%d" % size,"the size must be a positive number")
    
     if not timescale >0:
       raise MarkovianRangeException("timescale=%f" % timescale,
         "the timescale must be a positive number")
-    
+
+    number_of_cells=create_topology(dimension, size)
     return create_walk(number_of_cells, seed, timescale)
 
   def destroy(self):
@@ -111,7 +115,10 @@ class Markovian:
   
   def number_of_cells(self):
     return number_of_cells
-  
+
+  def size(self):
+    return topological_sizes[1]
+
   def reinit(self):
     number_of_cells= self.number_of_cells()
     self.destroy()
@@ -193,12 +200,12 @@ class Markovian:
 
   
   @classmethod
-  def demo(cls,number_of_cells=100, initial={50: 100000},decay_rate=0.1):
+  def demo(cls,dimension=2, size=100, initial={50: 100000},decay_rate=0.01):
 
-    m=Markovian(number_of_cells,initial=initial)
+    m=Markovian(dimension, size,initial=initial)
     m.decay_rate(decay_rate)
     m.run(1000000)
-    m.write_to_file()
+#    m.write_to_file()
     return m
 
   @classmethod

@@ -21,6 +21,8 @@
 #include <logclass.h>
 #include <model.h>
 #include <randomwalk.h>
+#include <topology.h>
+
 extern double markov_time, timescale;
 
 unsigned long seed;
