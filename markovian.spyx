@@ -41,22 +41,57 @@ cdef extern from "sagemarkov.h":
   size_t number_of_cells
   unsigned long seed
 
+  int topological_dimension
   size_t create_topology(const int dimension, const size_t edge)
+  size_t * topological_sizes
 
   int create_walk(size_t init_number_of_cells, unsigned long init_seed, double timescale)
   int destroy_walk()
-  
+
   reactivity_t reactivity(size_t index)
   reactivity_t global_reactivity()
-  
+
   void update_reactivity(size_t index)
-  void getcell(size_t index)
   int run_walk(size_t iterations)
   
   
   double markov_time, timescale
   double decay_rate
   double diffusion_rate
+
+def index(*array):
+  i=0;
+  for d in range(topological_dimension):
+    i+=array[d] * topological_sizes[d]
+
+  return i
+
+def coords(index):
+  a=[]
+  for d in range(topological_dimension):
+    dc=index % topological_sizes[d+1]
+    a.append(dc/topological_sizes[d])
+    index -= dc
+  return a
+
+def update(index):
+  if index < 0 or index >= number_of_cells:
+    raise MarkovianRangeException("index=%d" % index,"the index must be in the range=0 .. %d" % number_of_cells)
+  update_reactivity(index)
+
+def cell_access(index,n=None):
+
+  if index < 0 or index >= number_of_cells:
+    raise MarkovianRangeException("index=%d" % index,"the index must be in the range=0 .. %d" % number_of_cells)
+
+  if n:
+    if n<0:
+      raise MarkovianRangeException("n=%d" % n,"the number of walkers n must be n >= 0")
+    cells[index].n=n
+    update(index)
+
+  return cells[index].n
+
 
 class MarkovianRangeException(BaseException):
   """Range check exception"""
@@ -67,6 +102,12 @@ class Markovian:
   
   def __init__(self,dimension,size, seed=0, timescale=1, initial=None):
     self.create(dimension, size, seed, timescale)
+    self.dimension=dimension
+    self.size=size
+    self.seed=seed
+    self.timescale=timescale
+    self.initial=initial
+
     if initial:
       self.initial_conditions(initial)
     
@@ -79,16 +120,12 @@ class Markovian:
         "the timescale must be a positive number")
 
     number_of_cells=create_topology(dimension, size)
+    self.number_of_cells=number_of_cells
     return create_walk(number_of_cells, seed, timescale)
 
   def destroy(self):
     return destroy_walk()
 
-  def update(self,index):
-    if index < 0 or index >= self.number_of_cells():
-      raise MarkovianRangeException("index=%d" % index,"the index must be in the range=0 .. %d" % self.number_of_cells())
-    update_reactivity(index)
-  
   def reactivity(self,index=None):
     if index:
       return reactivity(index)
@@ -101,33 +138,17 @@ class Markovian:
     
     return diffusion_rate
   
-  def cell(self,index,n=None):
-
-    if index < 0 or index >= self.number_of_cells():
-      raise MarkovianRangeException("index=%d" % index,"the index must be in the range=0 .. %d" % self.number_of_cells())
-    
-    if n:
-      if n<0:
-        raise MarkovianRangeException("n=%d" % n,"the number of walkers n must be n >= 0")
-      cells[index].n=n
-      self.update(index)
-    return cells[index].n
-  
-  def number_of_cells(self):
-    return number_of_cells
-
-  def size(self):
-    return topological_sizes[1]
+  def volume(self):
+    return topological_volume()
 
   def reinit(self):
-    number_of_cells= self.number_of_cells()
     self.destroy()
-    self.create(number_of_cells,seed,timescale)
+    self.create(self.number_of_cells,seed,timescale)
     if self.initial:
       self.initial_conditions(self.initial)
         
   def run(self,iterations):
-    if run_walk(iterations) == -1 and self.number_of_cells() > 0 :
+    if run_walk(iterations) == -1 and self.number_of_cells > 0 :
       reinit()
       run_walk(iterations)
 
@@ -146,17 +167,20 @@ class Markovian:
   def initial_conditions(self,initial):
     self.initial=initial
     for k in initial:
-      self.cell(k,initial[k]+self.cell(k))
+      cell_access(k,initial[k]+cell_access(k))
   
   def all_cells(self, cond=lambda index: True):
     ne={}
-    for i in range(self.number_of_cells() ):
-      if cond(i) > 0:
-        ne[i]=self.cell(i)
+    for i in range(self.number_of_cells ):
+      if cond(i):
+        ne[i]=cell_access(i)
     return ne
-    
+
   def non_empty_cells(self):
-    return self.all_cells(cond = lambda i: self.cell(i) > 0)
+    return self.all_cells(cond = lambda i: cell_access(i) > 0)
+
+  def slice(self, *args):
+    return self.all_cells()
 
   def analytic(self):
     return lambda x: self.initial[number_of_cells/2] \
@@ -192,17 +216,28 @@ class Markovian:
   def write_to_file(self,filename="out.dat"):
     f=open(filename,"w")
     for c in self.all_cells():
-        sim = self.cell(c)
+        sim = cell_access(c)
         an  = self.analytic()(c)
-        err = sqrt(self.cell(c))
+        err = sqrt(cell_access(c))
         f.write('{0:d}\t{1:d}\t{2:f}\t{3:f}\n'.format(c, sim, an, err))
     f.close()
 
+  def info(self):
+    dict=self.__dict__
+#    dict["non_empty_cells"]=self.non_empty_cells()
+    return dict
   
   @classmethod
-  def demo(cls,dimension=2, size=100, initial={50: 100000},decay_rate=0.01):
+  def demo(cls,dimension=2, size=100, initial=None,decay_rate=0.01):
 
     m=Markovian(dimension, size,initial=initial)
+
+    if m.initial == None:
+        center=0
+        for d in range(dimension):
+            center += topological_sizes[d+1]/2
+        m.initial_conditions({ center: 100000})
+
     m.decay_rate(decay_rate)
     m.run(1000000)
 #    m.write_to_file()

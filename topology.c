@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <stdarg.h>
 
 int topological_dimension;
 size_t *topological_sizes;

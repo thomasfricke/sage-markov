@@ -7,9 +7,12 @@ extern cell * cells;
 extern int topological_dimension;
 extern size_t *topological_sizes;
 
-
-inline size_t dimension(){
+inline int dimension(){
     return topological_dimension;
+}
+
+inline size_t topological_volume(){
+    return topological_sizes[topological_dimension];
 }
 
 inline cell * random_neighbour(cell * source) {
