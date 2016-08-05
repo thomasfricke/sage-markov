@@ -35,9 +35,9 @@ cdef extern from "sagemarkov.h":
   cdef struct cell:
     void * LC_DERIVED
     unsigned long n
-    
+
   cell * cells
-  
+
   size_t number_of_cells
   unsigned long seed
 
@@ -53,8 +53,8 @@ cdef extern from "sagemarkov.h":
 
   void update_reactivity(size_t index)
   int run_walk(size_t iterations)
-  
-  
+
+
   double markov_time, timescale
   double decay_rate
   double diffusion_rate
@@ -101,10 +101,10 @@ def update(index):
 class MarkovianRangeException(BaseException):
   """Range check exception"""
   def __init__(self, expr, msg):
-        self.args = (expr, msg) 
+        self.args = (expr, msg)
 
 class Markovian:
-  
+
   def __init__(self,dimension,size, seed=0, timescale=1, initial=None):
     self.create(dimension, size, seed, timescale)
     self.dimension=dimension
@@ -115,11 +115,11 @@ class Markovian:
 
     if initial:
       self.initial_conditions(initial)
-    
+
   def create(self,dimension, size, seed=0, timescale=1):
     if not size >0:
       raise MarkovianRangeException("size=%d" % size,"the size must be a positive number")
-   
+
     if not timescale >0:
       raise MarkovianRangeException("timescale=%f" % timescale,
         "the timescale must be a positive number")
@@ -148,46 +148,49 @@ class Markovian:
   def reactivity(self,index=None):
     if index:
       return reactivity(index)
-    else: 
+    else:
       return global_reactivity()
-      
+
   def diffusion_rate(self, d=None):
     if d:
       diffusion_rate=d
-    
+
     return diffusion_rate
-  
+
   def volume(self):
     return topological_volume()
 
   def reinit(self):
     self.destroy()
-    self.create(self.number_of_cells,seed,timescale)
+
+    self.create(dimension=self.dimension, 
+      size=self.size,seed=self.seed,timescale=self.timescale)
+
     if self.initial:
       self.initial_conditions(self.initial)
-        
+
   def run(self,iterations):
     if run_walk(iterations) == -1 and self.number_of_cells > 0 :
       reinit()
       run_walk(iterations)
 
     return markov_time
-  
+
   def time(self):
     return markov_time
-  
+
   def decay_rate(self,r=None):
     global decay_rate
     if r:
       decay_rate=r
-      
+
     return decay_rate
-  
+
   def initial_conditions(self,initial):
     self.initial=initial
     for k in initial:
       self.cell(k,initial[k]+self.cell(k))
-  
+
   def all_cells(self, cond=lambda index: True):
     ne={}
     for i in range(self.number_of_cells ):
@@ -213,23 +216,23 @@ class Markovian:
     a=self.non_empty_cells()
     for i in a:
       a[i]=self.analytic()(i)
-    
+
     return list_plot(a,color=color,plotjoined=plotjoined)
-    
+
   def sum_walker(self):
     sum=0
     for c in self.all_cells():
       sum = sum + cells[c].n
-      
+
     return sum
-  
+
   def value_by_time(self,fun,steps=1000):
     time_series={}
-   
+
     while self.reactivity() > 0:
       time_series[self.time()]=fun()
       self.run(steps)
-      
+
     return time_series
 
   def write_to_file(self,filename="out.dat"):
@@ -245,7 +248,7 @@ class Markovian:
     dict=self.__dict__
 #    dict["non_empty_cells"]=self.non_empty_cells()
     return dict
-  
+
   @classmethod
   def demo(cls,dimension=2, size=100, initial=None,decay_rate=0.01):
 
