@@ -98,6 +98,38 @@ def update(index):
     raise MarkovianRangeException("index=%d" % index,"the index must be in the range=0 .. %d" % number_of_cells)
   update_reactivity(index)
 
+class multi_range:
+
+    def __init__(self, *ranges, return_fun=lambda l: l):
+      self.return_fun = return_fun
+      self.iterators = []
+      self.ranges = ranges
+      self.values = []
+      for r in self.ranges:
+        i=iter(r)
+        self.iterators.append(i)
+        self.values.append(i.next())
+
+      self.dim = len( ranges)
+
+    def __iter__(self):
+      while True:
+        yield self.return_fun(self.values)
+        d=0
+        while d < self.dim:
+          try:
+            self.values[d] = self.iterators[d].next()
+          except StopIteration:
+            i=iter(self.ranges[d])
+            self.iterators[d]=i
+            self.values[d]=i.next()
+            d += 1
+            continue
+          else:
+            break
+        else:
+          raise StopIteration()
+
 class MarkovianRangeException(BaseException):
   """Range check exception"""
   def __init__(self, expr, msg):
@@ -163,7 +195,7 @@ class Markovian:
   def reinit(self):
     self.destroy()
 
-    self.create(dimension=self.dimension, 
+    self.create(dimension=self.dimension,
       size=self.size,seed=self.seed,timescale=self.timescale)
 
     if self.initial:
@@ -191,9 +223,13 @@ class Markovian:
     for k in initial:
       self.cell(k,initial[k]+self.cell(k))
 
-  def all_cells(self, cond=lambda index: True):
+  def all_cells(self, cond=lambda index: True,
+                range_iterator= None) :
+    if range_iterator==None:
+      range_iterator=range(self.number_of_cells )
+
     ne={}
-    for i in range(self.number_of_cells ):
+    for i in range_iterator:
       if cond(i):
         ne[i]=self.cell(i)
     return ne
@@ -203,6 +239,28 @@ class Markovian:
 
   def slice(self, ranges):
     return self.all_cells(cond=lambda i: matches(i,*ranges))
+
+  def loop(self,*ranges):
+    min = len(ranges)
+    if self.dimension < min:
+      min = self.dimension
+
+    loop_ranges =[]
+
+    for l in range(self.dimension):
+      if l<min and ranges[l]:
+        rl = ranges[l]
+        if  rl == None:
+          loop_ranges.append(range(self.size))
+        else:
+          if isinstance(rl,list):
+            loop_ranges.append(rl)
+          else:
+            loop_ranges.append(range(rl,rl+1))
+      else:
+        loop_ranges.append(range(self.size))
+
+    return loop_ranges
 
   def analytic(self):
     return lambda x: self.initial[number_of_cells/2] \
