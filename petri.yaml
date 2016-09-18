@@ -1,19 +1,37 @@
 type: rds
 version: v0.1
 name: diffusion with decay
-molecule:
-  - name: n
-  - name: a
-  - name: b
+molecules:
+  - molecule:
+      name: n
+  - molecule:
+      name: a
+  - molecule:
+      name: b
 reactions:
-  - name: decay
-  - educts:
-      - n
-      - a
-  - products: []
-  - code: n--
-  - rate: 1.0
+  - reaction:
+      name: decay
+      educts:
+        - n
+        - a
+      products: 2*b+n
+      code: n--
+      rate: 1.0
+  - reaction:
+      name: a_b_annihilation
+      educts:
+        - a
+        - b
+      rate: 42
 diffusion:
   topology:
     name: hypercube
     dimension: 3
+  molecules:
+    - molecule:
+        name: a
+        rate: 2.0
+    - molecule:
+        name: n
+        rate: 1.0
+
