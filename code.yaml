@@ -17,24 +17,30 @@ reactants: |
       } cell;
 molecule: "unsigned long ${name};\n  "
 reaction:
-  reactivity: |
-    inline  lc_reactivity_t reaction_reactivity_${name}(const cell* source){
-        return ${rate} * ${educts};
-    }
+  reactivity:
+    name: "reaction_reactivity_${name}"
+    body: |
+      inline  lc_reactivity_t ${name} (const cell* source){
+          return ${rate} * ${educts};
+      }
   step: |
     inline void reaction_step_${name}(cell * source){
         ${changes}
     }
   rate: "reaction_rate_${name}"
+
 source: "source -> "
 diffusion:
   topology: "#include <${topology}.h>\n"
-  reactivity: |
+  reactivity:
+    name: "diffusion_reactivity_${molecule}"
+    body: |
 
-    inline lc_reactivity_t diffusion_reactivity_${molecule}(const cell* source){
-        return diffusion_rate_${molecule} * source->${molecule};
-    }
+      inline lc_reactivity_t ${name} (const cell* source){
+          return diffusion_rate_${molecule} * source->${molecule};
+      }
   step: |
+
     inline cell * diffusion_step_${molecule}(cell * source){
       source->${molecule}--;
 
@@ -45,8 +51,10 @@ diffusion:
     }
   rate: "diffusion_rate_${name}"
 declaration: "lc_reactivity_t ${name} = ${rate};\n"
-reactivity: |
+reactivity:
+  body: |
 
-  inline lc_reactivity_t reactivity(size_t index) {
-    return ${reactivity};
-  }
+    inline lc_reactivity_t reactivity(size_t index) {
+      return ${reactivity};
+    }
+  call: "${method}(cell + index)"

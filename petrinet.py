@@ -61,14 +61,17 @@ class Model(object):
         return result
 
     def reaction_reactivity(self):
-        reactivity_template = Template(self.template.reaction.reactivity)
+        reactivity_body_template = Template(self.template.reaction.reactivity.body)
+        reactivity_name_template = Template(self.template.reaction.reactivity.name)
+
         rate_template = Template(self.template.reaction.rate)
 
         result = ""
         for r in self.data.reactions:
             reaction = r.reaction
-            rate = rate_template.substitute(name=reaction.name)
-            result += reactivity_template.substitute(
+            name = reactivity_name_template.substitute(name=reaction.name)
+            rate = rate_template.substitute(name=name)
+            result += reactivity_body_template.substitute(
                 name=reaction.name,
                 educts=self.educt_factor(reaction.educts),
                 rate=rate)
@@ -77,14 +80,16 @@ class Model(object):
 
     def diffusion_rate(self):
         topology_template = Template(self.template.diffusion.topology)
-        reactivity_template = Template(self.template.diffusion.reactivity)
+        reactivity_name_template = Template(self.template.diffusion.reactivity.name)
+        reactivity_body_template = Template(self.template.diffusion.reactivity.body)
 
         diffusion  = self.data.diffusion
 
         result = topology_template.substitute(topology=diffusion.topology.name)
 
         for m in diffusion.molecules:
-            result += reactivity_template.substitute(molecule=m.molecule.name)
+            name = reactivity_name_template.substitute(molecule=m.molecule.name)
+            result += reactivity_body_template.substitute(name=name,molecule=m.molecule.name)
 
         return result
 
@@ -112,6 +117,24 @@ class Model(object):
 
         return result
 
+    def reactivity(self):
+        reactivity_body_template = Template(self.template.reactivity.body)
+        reactivity_call_template = Template(self.template.reactivity.call)
+        reactivity_name_template = Template(self.template.reaction.reactivity.name)
+
+        result=""
+        plus=""
+        for r in self.data.reactions:
+            reaction = r.reaction
+            name = reactivity_name_template.substitute(name=reaction.name)
+            call = reactivity_call_template.substitute(method=name)
+            result += plus + call
+            plus = " + \n     "
+
+        return reactivity_body_template.substitute(reactivity=result)
+
+
+
 if __name__ == '__main__':
     arguments = docopt(__doc__, version="v0.1")
     #    print(arguments)
@@ -132,3 +155,4 @@ if __name__ == '__main__':
     print model.diffusion_rate()
     print model.diffusion_step()
     print model.declaration()
+    print model.reactivity()
