@@ -14,5 +14,5 @@ size_t create_topology(const int dimension, const size_t edge){
         topological_sizes[d]=d_shift;
         d_shift*=edge;
     }
-    return topological_sizes[dimension];
+    return d_shift;
 }

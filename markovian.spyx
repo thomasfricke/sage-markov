@@ -1,26 +1,8 @@
-###################################################################################
-#
-#   This file is part of Sage-Markov.
-#
-#   Sage-Markov is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    Sage-Markov is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU AFFERO GENERAL PUBLIC LICENSE for more details.
-#   You should have received a copy of the GNU AFFERO GENERAL PUBLIC LICENSE
-#   along with Sage-Markov.  If not, see <http://www.gnu.org/licenses/>.
-#
-###############################################################################
 
 import os
 home=os.getcwd()
-dimension=1
 
-#clang c
+#distutils clang c
 #cargs -std=c99
 #cinclude home
 #cfile topology.c  model.c logclass.c rand55.c rand55static.c sagemarkov.c
@@ -59,6 +41,14 @@ cdef extern from "sagemarkov.h":
   double decay_rate
   double diffusion_rate
 
+
+def center():
+  c=0
+  for d in range(topological_dimension):
+    c += topological_sizes[d+1]/2
+  return c
+
+ 
 def index(*array):
   min=topological_dimension
   if len(array) < topological_dimension:
@@ -78,6 +68,21 @@ def coords(index):
     a.append(dc/topological_sizes[d])
     index -= dc
   return a
+
+def distance(index1, index2):
+  
+  a1=coords(index1)
+  a2=coords(index2)
+  
+  s=0
+  
+  for d in range(topological_dimension):
+    a = abs(a1[d]-a2[d])
+    if a > topological_sizes[d]/2:
+      a-=topological_sizes[d]/2
+    s+=a*a
+    
+  return s
 
 def matches(index,*ranges):
   min=topological_dimension
@@ -145,8 +150,7 @@ class Markovian:
     self.timescale=timescale
     self.initial=initial
 
-    if initial:
-      self.initial_conditions(initial)
+    self.reinit()
 
   def create(self,dimension, size, seed=0, timescale=1):
     if not size >0:
@@ -234,8 +238,13 @@ class Markovian:
         ne[i]=self.cell(i)
     return ne
 
-  def non_empty_cells(self):
-    return self.all_cells(cond = lambda i: self.cell(i) > 0)
+  def non_empty_cells_NO(self):
+   return self.all_cells(cond = lambda i: self.cell(i) > 0)
+
+  def non_empty_cells(self, f=0, t=None):
+    if t == None:
+        t=self.number_of_cells
+    return self.all_cells(cond = lambda i: (f <=i <t) and (self.cell(i) > 0))
 
   def slice(self, ranges):
     return self.all_cells(cond=lambda i: matches(i,*ranges))
@@ -263,15 +272,16 @@ class Markovian:
     return loop_ranges
 
   def analytic(self):
-    return lambda x: self.initial[number_of_cells/2] \
-                     *exp( -pow(x-number_of_cells/2,2)/( 2*self.time() ) - self.decay_rate()*self.time() ) \
-                     /sqrt( 2*pi*self.time() )
+    c=center()
+    return lambda x: self.peak \
+                     *exp( -distance(c,x)/( 2/self.dimension*self.time() ) - self.decay_rate()*self.time() ) \
+                     * pow(2/self.dimension*pi *self.time() ,-self.dimension*0.5)
 
-  def plot(self):
-    return list_plot(self.non_empty_cells())
+  def plot(self,f=0,t=None):
+    return list_plot(self.non_empty_cells(f=f,t=t))
 
-  def analytic_plot(self,color='red',plotjoined=True):
-    a=self.non_empty_cells()
+  def analytic_plot(self,f=0, t=None, color='red',plotjoined=True):
+    a=self.non_empty_cells(f=f,t=t)
     for i in a:
       a[i]=self.analytic()(i)
 
@@ -308,15 +318,16 @@ class Markovian:
     return dict
 
   @classmethod
-  def demo(cls,dimension=2, size=100, initial=None,decay_rate=0.01):
+  def demo(cls,dimension=1, size=100, peak=None,decay_rate=0.01):
 
-    m=Markovian(dimension, size,initial=initial)
+    m=Markovian(dimension, size, initial=peak)
 
-    if m.initial == None:
-        center=0
-        for d in range(dimension):
-            center += topological_sizes[d+1]/2
-        m.initial_conditions({ center: 100000})
+    if peak == None:
+        peak=100000
+
+    m.peak=peak
+    c=center()
+    m.initial_conditions({ c: peak})
 
     m.decay_rate(decay_rate)
     m.run(1000000)
