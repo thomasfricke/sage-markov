@@ -2,31 +2,43 @@
 import os
 home=os.getcwd()
 
-#distutils clang c
-#cargs -std=c99
-#cinclude home
-#cfile topology.c  model.c logclass.c rand55.c rand55static.c sagemarkov.c
-
 from sage.plot.plot import list_plot
 from math import *
 
 ctypedef unsigned long size_t
 ctypedef double reactivity_t
+ctypedef unsigned long rand55_t
+
+cdef extern from "rand55.c":
+  rand55_t rand55_s
+  unsigned long init_rand55 ( unsigned long )
+  
+cdef extern from "createtable.c":
+  rand55_t rand55_0s
+
+cdef extern from "logclass.c":
+  cdef struct lc_global:
+    pass
+  void lc_clear(lc_global *lc)
+
+cdef extern from "sagemarkov.c":
+  cell * cells
+
 
 cdef extern from "sagemarkov.h":
   cdef struct cell:
     void * LC_DERIVED
     unsigned long n
 
-  cell * cells
-
   size_t number_of_cells
   unsigned long seed
 
   int topological_dimension
   size_t create_topology(const int dimension, const size_t edge)
-  size_t * topological_sizes
 
+cdef extern from "topology.c":
+  size_t *topological_sizes
+  
   int create_walk(size_t init_number_of_cells, unsigned long init_seed, double timescale)
   int destroy_walk()
 
@@ -35,18 +47,22 @@ cdef extern from "sagemarkov.h":
 
   void update_reactivity(size_t index)
   int run_walk(size_t iterations)
+  size_t run_walk_until(double time)
 
 
   double markov_time, timescale
+
+cdef extern from "model.c":
   double decay_rate
   double diffusion_rate
+  
 
 
 def center():
   c=0
   for d in range(topological_dimension):
     c += topological_sizes[d+1]/2
-  return c
+  return int(c)
 
  
 def index(*array):
@@ -74,14 +90,15 @@ def distance(index1, index2):
   a1=coords(index1)
   a2=coords(index2)
   
-  s=0
+  s=0.0
   
   for d in range(topological_dimension):
     a = abs(a1[d]-a2[d])
-    if a > topological_sizes[d]/2:
-      a-=topological_sizes[d]/2
+    if a > topological_sizes[d+1]/2:
+      a-=topological_sizes[d+1]/2
     s+=a*a
-    
+#    print("t={} a1={} a2={} a={} s={}".format(topological_sizes[d+1],a1,a2,a,s))
+
   return s
 
 def matches(index,*ranges):
@@ -211,6 +228,15 @@ class Markovian:
       run_walk(iterations)
 
     return markov_time
+  
+  def run_until(self, time):
+    r = run_walk_until(time)
+    if r == -1 and self.number_of_cells > 0 :
+      reinit()
+      r = run_walk_until(time)
+    
+    return r
+     
 
   def time(self):
     return markov_time
@@ -238,13 +264,10 @@ class Markovian:
         ne[i]=self.cell(i)
     return ne
 
-  def non_empty_cells_NO(self):
-   return self.all_cells(cond = lambda i: self.cell(i) > 0)
-
   def non_empty_cells(self, f=0, t=None):
     if t == None:
         t=self.number_of_cells
-    return self.all_cells(cond = lambda i: (f <=i <t) and (self.cell(i) > 0))
+    return self.all_cells(cond = lambda i: self.cell(i) > 0, range_iterator=range(f,t) )
 
   def slice(self, ranges):
     return self.all_cells(cond=lambda i: matches(i,*ranges))
@@ -273,12 +296,29 @@ class Markovian:
 
   def analytic(self):
     c=center()
-    return lambda x: self.peak \
-                     *exp( -distance(c,x)/( 2/self.dimension*self.time() ) - self.decay_rate()*self.time() ) \
-                     * pow(2/self.dimension*pi *self.time() ,-self.dimension*0.5)
+    df    = self.peak * pow(2.0/self.dimension*pi *self.time() ,-self.dimension*0.5)
+    dct   = self.decay_rate()*self.time()
+    dimt2 = - 1.0/ ( 2.0/self.dimension*self.time() )
+    return lambda x:  df *exp( distance(c,x)* dimt2  - dct  ) 
 
-  def plot(self,f=0,t=None):
-    return list_plot(self.non_empty_cells(f=f,t=t))
+  def gauss(self):
+     import random
+     c=center()
+     s=sqrt(self.time())
+     a={}
+     for count in range(self.peak):
+       i=int(random.gauss(c,s)+0.5)
+       if i>0 and i<self.size :
+         if i in a:
+           a[i]=a[i]+1
+         else:
+           a[i]=1
+ 
+     return a
+
+
+  def plot(self,f=0,t=None,color='blue'):
+    return list_plot(self.non_empty_cells(f=f,t=t),color=color)
 
   def analytic_plot(self,f=0, t=None, color='red',plotjoined=True):
     a=self.non_empty_cells(f=f,t=t)
@@ -318,22 +358,26 @@ class Markovian:
     return dict
 
   @classmethod
-  def demo(cls,dimension=1, size=100, peak=None,decay_rate=0.01):
-
-    m=Markovian(dimension, size, initial=peak)
-
+  def demo(cls,dimension=1, size=100, peak=None,decay_rate=0.01,seed=0):
+    
+    m=Markovian(dimension, size,seed=seed)
+    
     if peak == None:
         peak=100000
-
-    m.peak=peak
+    
     c=center()
-    m.initial_conditions({ c: peak})
+    initial={ c: peak}
+ 
+    m.peak=peak
+    
+    m.initial_conditions(initial)
 
     m.decay_rate(decay_rate)
-    m.run(1000000)
+#    m.run(1000000)
 #    m.write_to_file()
     return m
 
   @classmethod
   def gnuplot_string(cls):
     return  'reset\np "out.dat" u 1:2:4 t "simulation" with err, "out.dat" u 1:3 t "analytic" with linespoints smooth unique'
+

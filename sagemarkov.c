@@ -68,3 +68,16 @@ int run_walk(size_t nrun){
   }
   return 0;
 }
+
+size_t run_walk_until(double time){
+  if( lc_g.r < lc_g.eps ){
+     printf("model not initialized, reactivity is 0 \n");
+     return -1;
+  }
+  size_t step=0;
+  while (markov_time < time  && lc_g.r > lc_g.eps) {
+    markov_time+=markov_step();
+    step++;
+  }
+  return step;
+}

@@ -142,7 +142,7 @@ unsigned long init_rand55 ( unsigned long seed55 )
   */
   rand55_j = rand55_J ;
   rand55_k = rand55_K ;
-  for ( i = 1000000L ; i ; i-- )
+  for ( i = 10000000L ; i ; i-- )
     rand55() ;
 
   return seed55;

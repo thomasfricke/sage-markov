@@ -3,3 +3,4 @@ out.dat
 .idea
 sage-markov.iml
 .vscode
+.ipynb_checkpoints
