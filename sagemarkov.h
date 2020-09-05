@@ -18,8 +18,10 @@
 #ifndef __SAGEMARKOV_H___
 #define __SAGEMARKOV_H___
 
+#define MODEL "diffusion/model.h"
+
 #include <logclass.h>
-#include <model.h>
+#include MODEL
 #include <randomwalk.h>
 #include <topology.h>
 

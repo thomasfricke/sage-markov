@@ -52,7 +52,7 @@ cdef extern from "topology.c":
 
   double markov_time, timescale
 
-cdef extern from "model.c":
+cdef extern from "diffusion/model.c":
   double decay_rate
   double diffusion_rate
   

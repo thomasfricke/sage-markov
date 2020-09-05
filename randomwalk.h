@@ -19,7 +19,6 @@
 #define __RANDOMWALK_H___
 
 #include <logclass.h>
-#include <model.h>
 
 extern cell * cells;
 extern lc_global lc_g;
