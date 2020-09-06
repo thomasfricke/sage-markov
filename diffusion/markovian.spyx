@@ -21,11 +21,11 @@ cdef extern from "logclass.c":
     pass
   void lc_clear(lc_global *lc)
 
-cdef extern from "sagemarkov.c":
-  cell * cells
+#cdef extern from "sagemarkov.c":
+#  cell * cells
 
 
-cdef extern from "sagemarkov.h":
+cdef extern from "diffusion/model.h":
   cdef struct cell:
     void * LC_DERIVED
     unsigned long n
@@ -55,7 +55,7 @@ cdef extern from "topology.c":
 cdef extern from "diffusion/model.c":
   double decay_rate
   double diffusion_rate
-  
+  cell * cells
 
 
 def center():

@@ -18,14 +18,10 @@
 #ifndef __SAGEMARKOV_H___
 #define __SAGEMARKOV_H___
 
-#define MODEL "diffusion/model.h"
-
 #include <logclass.h>
-#include MODEL
-#include <randomwalk.h>
-#include <topology.h>
 
 extern double markov_time, timescale;
+extern lc_global lc_g;
 
 unsigned long seed;
 
@@ -36,4 +32,7 @@ inline void update_reactivity(size_t index){
 inline lc_reactivity_t global_reactivity(){
    return lc_g.r;
 }
+
+#include <randomwalk.h>
+
 #endif

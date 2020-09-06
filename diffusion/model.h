@@ -29,7 +29,10 @@ typedef struct CELL{
   unsigned long n;
 } cell;
 
-#import <topology.h>
+extern cell * cells;
+
+#include <topology.h>
+
 
 extern lc_reactivity_t decay_rate, diffusion_rate;
 
@@ -48,6 +51,7 @@ inline lc_reactivity_t reactivity(size_t index) {
 }
 
 
+
 inline void reaction_step(cell * source){
     source -> n--;
 }
@@ -60,4 +64,7 @@ inline cell * diffusion_step(cell * source){
 
     return dest;
    }
+
+#include <sagemarkov.h>
+
 #endif
