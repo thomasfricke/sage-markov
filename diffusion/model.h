@@ -17,20 +17,7 @@
 #ifndef __MODEL_H__
 #define __MODEL_H__
 #include <logclass.h>
-
-#define LC_REACTIVITY(c) (reactivity((c)-cells))
-
-/*
- *  definition of the model 
- * 
- */
-typedef struct CELL{
-  LC_DERIVED;
-  unsigned long n;
-} cell;
-
-extern cell * cells;
-
+#include <diffusion/cells.h>
 #include <topology.h>
 
 
