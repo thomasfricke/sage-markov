@@ -20,31 +20,11 @@
 
 #include <logclass.h>
 
-extern cell * cells;
-extern lc_global lc_g;
+lc_global lc_g;
 
-inline double markov_step(){
-    LC_DRAW(cell,source);
-    double time_step=LC_TIME_STEP();
+lc_reactivity_t reaction_reactivity(const cell *);
+lc_reactivity_t diffusion_reactivity(const cell *);
+cell * diffusion_step(cell *);
 
-    lc_reactivity_t reaction  = reaction_reactivity(source);
-    lc_reactivity_t diffusion = diffusion_reactivity(source);
-
-    if( drand55()* ( reaction + diffusion ) < reaction ){
-       // reaction step
-      reaction_step(source);
-
-      LC_UPDATE_DRAWN(source);
-
-    } else {
-      // diffusion step
-      cell * dest = diffusion_step(source);
-
-      LC_UPDATE_DRAWN(source);
-
-      LC_UPDATE(dest);
-
-    }
-    return time_step;
-}
+double markov_step();
 #endif

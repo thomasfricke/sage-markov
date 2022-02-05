@@ -14,25 +14,30 @@
 *    You should have received a copy of the GNU AFFERO GENERAL PUBLIC LICENSE
 *    along with Sage-Markov.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef __MODEL_H__
-#define __MODEL_H__
-#include <logclass.h>
-#include <diffusion/cells.h>
 
-lc_reactivity_t decay_rate, diffusion_rate;
+#include <randomwalk.h>
 
-lc_reactivity_t reaction_reactivity(const cell* source);
+double markov_step(){
+    LC_DRAW(cell,source);
+    double time_step=LC_TIME_STEP();
 
+    lc_reactivity_t reaction  = reaction_reactivity(source);
+    lc_reactivity_t diffusion = diffusion_reactivity(source);
 
-lc_reactivity_t diffusion_reactivity(const cell* source);
+    if( drand55()* ( reaction + diffusion ) < reaction ){
+       // reaction step
+      reaction_step(source);
 
+      LC_UPDATE_DRAWN(source);
 
-lc_reactivity_t reactivity(size_t index);
+    } else {
+      // diffusion step
+      cell * dest = diffusion_step(source);
 
-lc_reactivity_t LC_REACTIVITY(size_t index);
+      LC_UPDATE_DRAWN(source);
 
-void reaction_step(cell * source);
+      LC_UPDATE(dest);
 
-cell * diffusion_step(cell * source);
-
-#endif
+    }
+    return time_step;
+}

@@ -21,6 +21,8 @@
 #include "rand55.h"
 #include "gauss55.h"
 
+#include "rand55static.c"
+
 double 	_gauss_reject55[rand55_N_GAUSSHALF]={
   /* 0 */ .79788456080286535588 ,
 	  /* 1 */ .79167537388949896826 ,

@@ -19,20 +19,20 @@
 #define __SAGEMARKOV_H___
 
 #include <logclass.h>
+#include <randomwalk.h>
 
-extern double markov_time, timescale;
-extern lc_global lc_g;
+double markov_time, timescale;
+lc_global lc_g;
 
 unsigned long seed;
 
-inline void update_reactivity(size_t index){
+void update_reactivity(size_t index){
  ( cells+index) -> lc_ev = lc_enter( &lc_g, cells+index, reactivity( index ) );
 }
 
-inline lc_reactivity_t global_reactivity(){
+lc_reactivity_t global_reactivity(){
    return lc_g.r;
 }
 
-#include <randomwalk.h>
 
 #endif

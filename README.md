@@ -1,5 +1,5 @@
 # Markov 
-Markov is an optimized simulation tool written in C for arbitrary 
+Markov is an optimized simulation algorithm written in C for arbitrary 
 Reaction-Diffusion-Systems (RDS).
 
 It simulates the Gillespie algorithm in the thermodynamical limit, 

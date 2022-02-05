@@ -1,31 +1,29 @@
-
 import os
 home=os.getcwd()
 
 from sage.plot.plot import list_plot
 from math import *
 
-ctypedef unsigned long size_t
+#ctypedef unsigned long size_t
 ctypedef double reactivity_t
 ctypedef unsigned long rand55_t
+
+def chello():
+  return hello()
 
 cdef extern from "rand55.c":
   rand55_t rand55_s
   unsigned long init_rand55 ( unsigned long )
-  
-cdef extern from "createtable.c":
-  rand55_t rand55_0s
+
+#cdef extern from "createtable.h":
+#  rand55_t rand55_0s
 
 cdef extern from "logclass.c":
   cdef struct lc_global:
     pass
   void lc_clear(lc_global *lc)
 
-#cdef extern from "sagemarkov.c":
-#  cell * cells
-
-
-cdef extern from "diffusion/model.h":
+cdef extern from "diffusion/model.c":
   cdef struct cell:
     void * LC_DERIVED
     unsigned long n
@@ -49,14 +47,16 @@ cdef extern from "topology.c":
   int run_walk(size_t iterations)
   size_t run_walk_until(double time)
 
-
+cdef extern from "sagemarkov.c":
   double markov_time, timescale
 
 cdef extern from "diffusion/model.c":
   double decay_rate
   double diffusion_rate
   cell * cells
-
+  
+cdef extern from "randomwalk.c":
+  double markov_step()
 
 def center():
   c=0
@@ -223,17 +223,24 @@ class Markovian:
       self.initial_conditions(self.initial)
 
   def run(self,iterations):
+    
     if run_walk(iterations) == -1 and self.number_of_cells > 0 :
+      print("reinit")
+      sys.stdout.flush()
       reinit()
-      run_walk(iterations)
+    
+    run_walk(iterations)
 
     return markov_time
   
   def run_until(self, time):
     r = run_walk_until(time)
     if r == -1 and self.number_of_cells > 0 :
+      print("reinit")
+      sys.stdout.flush()
       reinit()
-      r = run_walk_until(time)
+    
+    r = run_walk_until(time)
     
     return r
      
