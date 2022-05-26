@@ -20,8 +20,6 @@
 
 #include <logclass.h>
 
-lc_global lc_g;
-
 lc_reactivity_t reaction_reactivity(const cell *);
 lc_reactivity_t diffusion_reactivity(const cell *);
 cell * diffusion_step(cell *);

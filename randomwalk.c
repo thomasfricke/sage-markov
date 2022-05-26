@@ -19,6 +19,7 @@
 
 double markov_step(){
     LC_DRAW(cell,source);
+    
     double time_step=LC_TIME_STEP();
 
     lc_reactivity_t reaction  = reaction_reactivity(source);
@@ -33,7 +34,7 @@ double markov_step(){
     } else {
       // diffusion step
       cell * dest = diffusion_step(source);
-
+      
       LC_UPDATE_DRAWN(source);
 
       LC_UPDATE(dest);

@@ -7,9 +7,9 @@
  */
 typedef struct CELL{
   LC_DERIVED;
-  unsigned long n;
+  int n;
 } cell;
 
-extern cell * cells;
+cell * cells;
 
 #endif 

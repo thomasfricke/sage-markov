@@ -6,29 +6,27 @@
 
 lc_reactivity_t decay_rate=0, diffusion_rate=1;
 
-inline  lc_reactivity_t reaction_reactivity(const cell* source){
+lc_reactivity_t reaction_reactivity(const cell* source){
     return decay_rate * source-> n ;
 };
 
-inline lc_reactivity_t diffusion_reactivity(const cell* source){
+lc_reactivity_t diffusion_reactivity(const cell* source){
     return diffusion_rate * source->n;
 };
 
+lc_reactivity_t reactivity(size_t index) {
+    return LC_REACTIVITY(cells+index);
+}
 
+lc_reactivity_t LC_REACTIVITY(const cell* source) {
+    return (decay_rate+diffusion_rate) * source -> n;
+}
 
-inline lc_reactivity_t reactivity(size_t index) {
-  return (decay_rate+diffusion_rate)* ( cells+index ) -> n;
-};
-
-inline lc_reactivity_t LC_REACTIVITY(size_t index) {
-    return reactivity(index);
-};
-
-inline void reaction_step(cell * source){
+void reaction_step(cell * source){
     source -> n--;
 };
 
-inline cell * diffusion_step(cell * source){
+cell * diffusion_step(cell * source){
     source->n--;
 
     cell *dest = random_neighbour(source);

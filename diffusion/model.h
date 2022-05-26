@@ -29,7 +29,7 @@ lc_reactivity_t diffusion_reactivity(const cell* source);
 
 lc_reactivity_t reactivity(size_t index);
 
-lc_reactivity_t LC_REACTIVITY(size_t index);
+lc_reactivity_t LC_REACTIVITY( const cell* source );
 
 void reaction_step(cell * source);
 

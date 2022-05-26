@@ -21,8 +21,9 @@
 #include <logclass.h>
 #include <randomwalk.h>
 
+cell * cells;
+size_t number_of_cells;
 double markov_time, timescale;
-lc_global lc_g;
 
 unsigned long seed;
 

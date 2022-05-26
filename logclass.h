@@ -239,6 +239,9 @@ extern void lc_tell_cell_that_event_moved(lc_event *lce);
     void      (*event_moved)(lc_event *);
   } lc_global;
 
+    lc_global lc_g;
+
+    
   /* The global data structure of LC containing all information required
      by LC' functions to operate.
 
